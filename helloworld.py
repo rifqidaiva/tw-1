@@ -1,25 +1,32 @@
 from flask import Flask
-from markupsafe import escape
 
 app = Flask(__name__)
 
-@app.route('/user/profile/<username>')
-def show_user_profile(username):
-    # show the user profile for that user
-    return f'User {escape(username)}'
+from markupsafe import escape
+from flask import url_for
+from flask import request
 
-@app.route('/user/profile/')
-def show_user_profile():
-    # show the user profile for that user
-    return f'profile'
+from flask import render_template
 
-@app.route('/post/<int:post_id>')
-def show_post(post_id):
-    # show the post with the given id, the id is an integer
-    return f'Post {post_id}'
+@app.route('/hello/')
+@app.route('/hello/<name>')
+def hello(name=None):
+    return render_template('index.php', person=name)
 
+@app.route('/')
+def index():
+    return 'index'
 
-@app.route('/path/<path:subpath>')
-def show_subpath(subpath):
-    # show the subpath after /path/
-    return f' {escape(subpath)}'
+@app.route('/login')
+def login():
+    return 'login'
+
+@app.route('/user/<username>')
+def profile(username):
+    return f'{username}\'s profile'
+
+with app.test_request_context():
+    print(url_for('index'))
+    print(url_for('login'))
+    print(url_for('login', next='/'))
+    print(url_for('profile', username='John Doe'))
