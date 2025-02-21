@@ -1,36 +1,53 @@
-from flask import Flask,render_template, request
+from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
- 
+
 app = Flask(__name__)
- 
+app.secret_key = 'your_secret_key'
+
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'perpustakaan'
- 
+
 mysql = MySQL(app)
- 
-@app.route('/register', methods = ['POST', 'GET'])
-def form():
+
+@app.route('/')
+def index():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    return render_template('index.html')
+
+@app.route('/register', methods=['POST', 'GET'])
+def register():
     return render_template('form.html')
- 
-@app.route('/login', methods = ['POST', 'GET'])
-def registerop():
+
+@app.route('/login', methods=['POST', 'GET'])
+def login():
     if request.method == 'POST':
-        return render_template('login.html')
-     
-    if request.method == 'POST':
-        cursor = mysql.connection.cursor()
-        cursor.execute(''' SELECT MAX(id_user) FROM users ''')
-        result = cursor.fetchone()
-        id_user = result[0] + 1 if result[0] else 1
         username = request.form['username']
         password = request.form['password']
         cursor = mysql.connection.cursor()
-        cursor.execute(''' INSERT INTO users VALUES(%s,%s,%s,%s)''',(id_user,username,password,'user'))
-        mysql.connection.commit()
+        
+        cursor.execute('SELECT * FROM users WHERE username=%s AND password=%s', (username, password))
+        account = cursor.fetchone()
         cursor.close()
-        return render_template('login.html')
+        
+        if account:
+            session['loggedin'] = True
+            session['id'] = account[0]
+            session['username'] = account[1]
+            return redirect(url_for('index'))
+        else:
+            return 'Invalid username/password!'
+    
+    return render_template('login.html')
 
+@app.route('/logout')
+def logout():
+    session.pop('loggedin', None)
+    session.pop('id', None)
+    session.pop('username', None)
+    return redirect(url_for('login'))
 
-app.run(host='localhost', port=5000)
+if __name__ == '__main__':
+    app.run(debug=True)
