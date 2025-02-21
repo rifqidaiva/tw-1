@@ -127,5 +127,37 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('index'))
 
+@app.route('/edit')
+def edit():
+    id_buku = request.args.get('id_buku')
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT * FROM buku WHERE id_buku = %s', (id_buku,))
+    databuku = cursor.fetchall()
+    cursor.close()
+    return render_template('edit.html', data=databuku)
+
+@app.route('/admin', methods=['POST', 'GET'])
+def admin():
+    if request.method == 'POST':
+        id_buku = request.form['id_buku']
+        judul = request.form['judul']
+        genre = request.form['genre']
+        kategori = request.form['kategori']
+        foto = request.form['foto_buku']
+        penerbit = request.form['penerbit']
+        bahasa = request.form['bahasa']
+        deskripsi = request.form['deskripsi']
+        cursor = mysql.connection.cursor()
+        cursor.execute('UPDATE buku SET judul=%s, foto=%s, penerbit=%s, bahasa=%s, id_kategori=%s, id_genre=%s, deskripsi=%s WHERE id_buku=%s', (judul, foto, penerbit, bahasa, kategori, genre, deskripsi, id_buku))
+        mysql.connection.commit()
+        cursor.close()
+        return redirect(url_for('admin'))
+    
+
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT * FROM buku')
+    results = cursor.fetchall()
+    return render_template('admin.html', results = results)
+
 if __name__ == '__main__':
     app.run(debug=True)
