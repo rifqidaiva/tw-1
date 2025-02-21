@@ -30,7 +30,6 @@ def register():
             return render_template('form.html', pesan='Akun berhasil terdaftar')
     return render_template('form.html', pesan=None)
     
-    
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -52,6 +51,18 @@ def login():
             return 'Invalid username/password!'
     return render_template('login.html')
     
+@app.route('/halaman', methods=['POST', 'GET'])
+def halaman():
+    if 'loggedin' in session:
+        if session['username'] == 'admin':
+            return render_template('admin.html')
+        else:
+            return render_template('user.html')
+    else:
+        return redirect(url_for('login'))
+        
+    
+
 @app.route('/logout')
 def logout():
     session.pop('loggedin', None)
