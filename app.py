@@ -57,7 +57,24 @@ def halaman():
         if session['username'] == 'admin':
             return render_template('admin.html')
         else:
-            return render_template('user.html')
+            # ambil data dari database [{id_buku, judul, foto, penerbit, bahasa, id_kategori, id_genre}]
+            cursor = mysql.connection.cursor()
+            cursor.execute('SELECT id_buku, judul, foto, penerbit, bahasa, id_kategori, id_genre FROM buku')
+            buku_data = cursor.fetchall()
+            cursor.close()
+            data = []
+            for row in buku_data:
+              data.append({
+                'id_buku': row[0],
+                'judul': row[1],
+                'foto': '/static/img/' + row[2],
+                'penerbit': row[3],
+                'bahasa': row[4],
+                'id_kategori': row[5],
+                'id_genre': row[6]
+              })
+              print(data)
+            return render_template('user.html', data=data)
     else:
         return redirect(url_for('login'))
         
