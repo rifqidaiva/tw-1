@@ -30,6 +30,58 @@ def register():
             return render_template('form.html', pesan='Akun berhasil terdaftar')
     return render_template('form.html', pesan=None)
     
+@app.route('/change_password', methods=['POST', 'GET'])
+def change_password():
+    if 'loggedin' in session:
+        if request.method == 'POST':
+            current_password = request.form['current_password']
+            new_password = request.form['new_password']
+            confirm_password = request.form['confirm_password']
+            
+            cursor = mysql.connection.cursor()
+            cursor.execute('SELECT password FROM users WHERE id_user = %s', (session['id'],))
+            account = cursor.fetchone()
+            
+            if account and account[0] == current_password:
+                if new_password == confirm_password:
+                    cursor.execute('UPDATE users SET password = %s WHERE id_user = %s', (new_password, session['id']))
+                    mysql.connection.commit()
+                    return render_template('change_password.html', pesan='Password berhasil diubah')
+                else:
+                    return render_template('change_password.html', pesan='Password baru tidak cocok')
+            else:
+                return render_template('change_password.html', pesan='Password saat ini salah')
+        return render_template('change_password.html', pesan=None)
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/change_username', methods=['POST', 'GET'])
+def change_username():
+    if 'loggedin' in session:
+        if request.method == 'POST':
+            new_username = request.form['new_username']
+            cursor = mysql.connection.cursor()
+            
+            # Cek apakah username sudah ada
+            cursor.execute('SELECT * FROM users WHERE username = %s', (new_username,))
+            existing_user = cursor.fetchone()
+            
+            if existing_user:
+                cursor.close()
+                return render_template('change_username.html', pesan='Username sudah digunakan!')
+            
+            # Update username jika tidak ada duplikasi
+            cursor.execute('UPDATE users SET username = %s WHERE id_user = %s', (new_username, session['id']))
+            mysql.connection.commit()
+            cursor.close()
+            
+            session['username'] = new_username
+            return render_template('change_username.html', pesan='Username berhasil diubah!')
+        
+        return render_template('change_username.html', pesan=None)
+    
+    return redirect(url_for('login'))
+
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -172,6 +224,10 @@ def rating():
 def syarat():
     return render_template('syarat.html')
 
+@app.route("/profile")
+def profile():
+    return render_template('profile.html')
+
 @app.route('/logout')
 def logout():
     session.pop('loggedin', None)
@@ -210,6 +266,37 @@ def admin():
     cursor.execute('SELECT * FROM buku')
     results = cursor.fetchall()
     return render_template('admin.html', results = results)
+
+@app.route('/tambah', methods=['POST', 'GET'])
+def tambah():
+        return render_template('tambah.html')
+
+@app.route('/tambahbuku', methods=['POST', 'GET'])
+def tambahop():
+    if request.method == 'POST':
+        cursor = mysql.connection.cursor()
+        id_buku = request.form['id_buku']
+        judul = request.form['judul']
+        foto = request.form['foto_buku']
+        penerbit = request.form['penerbit']
+        bahasa = request.form['bahasa']
+        id_kategori = request.form['kategori']
+        id_genre = request.form['genre']
+        deskripsi = request.form['deskripsi']
+        cursor.execute('INSERT INTO buku VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(id_buku,judul,foto,penerbit,bahasa,id_kategori,id_genre,deskripsi,'Tersedia'))
+        mysql.connection.commit()
+        cursor.close()
+        return redirect(url_for('admin'))
+
+@app.route('/hapusbuku', methods=['GET'])
+def hapusop():
+    id_buku = request.args.get('id_buku')
+    cursor = mysql.connection.cursor()
+    cursor.execute('DELETE FROM buku WHERE id_buku = %s', (id_buku,))
+    mysql.connection.commit()
+    cursor.close()
+    return redirect(url_for('admin'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)

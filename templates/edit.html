@@ -78,13 +78,13 @@
     </div>
 
     <p class="my-4" style="text-align: center; font-size:20px"><b>Edit Data Buku</b>
-    <div class="container text-center">
+    <div class="container">
         <div class="row align-items-end">
             <div class="col border shadow p-3 mb-5 bg-body-tertiary rounded px-2">
                 <div class="auto__item">
-                    <div class="container px-4 text-center">
+                    <div class="container px-4">
                         {% for row in data %}
-                            <form action="/admin" method="POST">
+                            <form action="/admin" method="POST" >
                                 <input type="hidden" name="id_buku" value="{{ row[0] }}">
                                 <label for="judul" class="form-label">Judul:</label>
                                 <input type="text" class="form-control" id="judul" name="judul"
