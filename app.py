@@ -16,8 +16,8 @@ def form():
  
 @app.route('/login', methods = ['POST', 'GET'])
 def registerop():
-    if request.method == 'GET':
-        return "Login via the login Form"
+    if request.method == 'POST':
+        return render_template('login.html')
      
     if request.method == 'POST':
         cursor = mysql.connection.cursor()
@@ -31,7 +31,6 @@ def registerop():
         mysql.connection.commit()
         cursor.close()
         return render_template('login.html')
- 
 
 
 app.run(host='localhost', port=5000)
