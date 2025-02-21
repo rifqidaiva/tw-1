@@ -140,12 +140,14 @@ def admin():
     if request.method == 'POST':
         id_buku = request.form['id_buku']
         judul = request.form['judul']
+        genre = request.form['genre']
+        kategori = request.form['kategori']
         foto = request.form['foto_buku']
         penerbit = request.form['penerbit']
         bahasa = request.form['bahasa']
         deskripsi = request.form['deskripsi']
         cursor = mysql.connection.cursor()
-        cursor.execute('UPDATE buku SET judul=%s, foto=%s, penerbit=%s, bahasa=%s, deskripsi=%s WHERE id_buku=%s', (judul, foto, penerbit, bahasa, deskripsi, id_buku))
+        cursor.execute('UPDATE buku SET judul=%s, foto=%s, penerbit=%s, bahasa=%s, id_kategori=%s, id_genre=%s, deskripsi=%s WHERE id_buku=%s', (judul, foto, penerbit, bahasa, kategori, genre, deskripsi, id_buku))
         mysql.connection.commit()
         cursor.close()
         return redirect(url_for('admin'))
