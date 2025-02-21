@@ -13,8 +13,6 @@ mysql = MySQL(app)
 
 @app.route('/')
 def index():
-    if 'username' not in session:
-        return redirect(url_for('login'))
     return render_template('index.html')
 
 @app.route('/register', methods=['POST', 'GET'])
