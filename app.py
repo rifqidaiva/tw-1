@@ -21,7 +21,7 @@ def register():
         username = request.form['username']
         password = request.form['password']
         cursor = mysql.connection.cursor()
-        kondisi = cursor.execute('SELECT * FROM users WHERE username=%s', (username,))
+        cursor.execute('SELECT * FROM users WHERE username=%s', (username,))
         if  cursor.fetchone():
             return render_template('form.html', pesan='Username telah digunakan')
         else:
@@ -61,7 +61,9 @@ def halaman():
     else:
         return redirect(url_for('login'))
         
-    
+@app.route("/syarat")
+def syarat():
+    return render_template('syarat.html')
 
 @app.route('/logout')
 def logout():
