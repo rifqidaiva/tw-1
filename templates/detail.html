@@ -17,16 +17,21 @@
         <div id="progress-bar-fill"></div>
     </div>
 
-    <div class="container mt-5">
+    <div class="container m-5 height-100">
         <h2>Detail Buku</h2>
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Judul: {{ data.judul }}</h5>
-                <img src="{{ buku.foto }}" class="card-img-top" alt="Foto Buku">
-                <p class="card-text">Penerbit: {{ data.penerbit }}</p>
-                <p class="card-text">Bahasa: {{ data.bahasa }}</p>
-                <p class="card-text">Kategori: {{ data.id_kategori }}</p>
-                <p class="card-text">Genre: {{ data.id_genre }}</p>
+        <div class="row">
+            <div class="col-4">
+                <img src="{{ buku.foto }}" alt="{{ buku.judul }}" style="max-width:100%;">
+            </div>
+            <div class="col-8">
+                <div >
+                    <h5 style="font-weight: bold; font-size: 30px;">Judul: {{ buku.judul }}</h5>
+                    <p >Penerbit: {{ buku.penerbit }}</p>
+                    <p >Bahasa: {{ buku.bahasa }}</p>
+                    <p >Kategori: {{ buku.kategori }}</p>
+                    <p >Genre: {{ buku.genre }}</p>
+                    <p >Kategori: {{ buku.sinopsis }}</p>
+                </div>
             </div>
         </div>
     </div>

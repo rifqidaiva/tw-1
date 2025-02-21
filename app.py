@@ -82,19 +82,38 @@ def buku():
                 'id_kategori': row[5],
                 'id_genre': row[6]
               })
-              print(data)
+              ###print(data)
             return render_template('user.html', data=data)
     else:
         return redirect(url_for('login'))
         
-@app.route("/detail", methods=['POST', 'GET'])
-def detail():
-    if request.method == 'POST':
-        id_buku = request.form['id_buku']
-        cursor = mysql.connection.cursor()
-        cursor.execute('SELECT * FROM buku WHERE id_buku = %s', (id_buku))
-        buku_data = cursor.fetchall()
-    return render_template('detail.html', data=buku_data)
+@app.route("/detail/<int:id_buku>", methods=['GET'])
+def detail(id_buku):
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT * FROM buku WHERE id_buku = %s', (id_buku,))
+    buku_data = cursor.fetchone()
+    
+    if buku_data:
+        id_genre = buku_data[6]
+        id_kategori = buku_data[5]
+        
+        cursor.execute('SELECT genre FROM genre WHERE id_genre = %s', (id_genre,))
+        genre_data = cursor.fetchone()
+        
+        cursor.execute('SELECT kategori FROM kategori WHERE id_kategori = %s', (id_kategori,))
+        kategori_data = cursor.fetchone()
+        
+        buku = {
+            'judul': buku_data[1],
+            'foto': '/static/img/' + buku_data[2],
+            'penerbit': buku_data[3],
+            'bahasa': buku_data[4],
+            'kategori': kategori_data[0] if kategori_data else 'Unknown',
+            'genre': genre_data[0] if genre_data else 'Unknown'
+        }
+        return render_template('detail.html', buku=buku)
+    else:
+        return redirect(url_for('buku'))
 
 @app.route("/syarat")
 def syarat():
