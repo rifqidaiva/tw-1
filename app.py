@@ -109,7 +109,8 @@ def detail(id_buku):
             'penerbit': buku_data[3],
             'bahasa': buku_data[4],
             'kategori': kategori_data[0] if kategori_data else 'Unknown',
-            'genre': genre_data[0] if genre_data else 'Unknown'
+            'genre': genre_data[0] if genre_data else 'Unknown',
+            'deskripsi': buku_data[7]
         }
         return render_template('detail.html', buku=buku)
     else:
