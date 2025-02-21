@@ -216,5 +216,36 @@ def admin():
     results = cursor.fetchall()
     return render_template('admin.html', results = results)
 
+@app.route('/tambah', methods=['POST', 'GET'])
+def tambah():
+        return render_template('tambah.html')
+
+@app.route('/tambahbuku', methods=['POST', 'GET'])
+def tambahop():
+    if request.method == 'POST':
+        cursor = mysql.connection.cursor()
+        id_buku = request.form['id_buku']
+        judul = request.form['judul']
+        foto = request.form['foto_buku']
+        penerbit = request.form['penerbit']
+        bahasa = request.form['bahasa']
+        id_kategori = request.form['kategori']
+        id_genre = request.form['genre']
+        deskripsi = request.form['deskripsi']
+        cursor.execute('INSERT INTO buku VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(id_buku,judul,foto,penerbit,bahasa,id_kategori,id_genre,deskripsi,'Tersedia'))
+        mysql.connection.commit()
+        cursor.close()
+        return redirect(url_for('admin'))
+
+@app.route('/hapusbuku', methods=['GET'])
+def hapusop():
+    id_buku = request.args.get('id_buku')
+    cursor = mysql.connection.cursor()
+    cursor.execute('DELETE FROM buku WHERE id_buku = %s', (id_buku,))
+    mysql.connection.commit()
+    cursor.close()
+    return redirect(url_for('admin'))
+
+
 if __name__ == '__main__':
     app.run(debug=True)
