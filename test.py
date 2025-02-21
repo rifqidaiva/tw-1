@@ -29,7 +29,8 @@ def register():
             mysql.connection.commit()
             return render_template('form.html', pesan='Akun berhasil terdaftar')
     return render_template('form.html', pesan=None)
-    
+   
+
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -37,15 +38,15 @@ def login():
         username = request.form['username']
         password = request.form['password']
         cursor = mysql.connection.cursor()
-        
+       
         cursor.execute('SELECT * FROM users WHERE username=%s AND password=%s', (username, password))
         account = cursor.fetchone()
         cursor.close()
-        
+       
         cursor = mysql.connection.cursor()
         cursor.execute('SELECT * FROM buku')
         results = cursor.fetchall()
-
+       
         if account:
             session['loggedin'] = True
             session['id'] = account[0]
@@ -54,14 +55,14 @@ def login():
             if account[3] == 'admin':
                 return render_template('admin.html', role="admin", results = results)
             else:
-                return redirect(url_for('buku'))
+                return render_template('user.html')
         else:
             return 'Invalid username/password!'
-    return render_template('login.html')
-
-    
-@app.route('/buku', methods=['POST', 'GET'])
-def buku():
+   
+    return render_template('index.html')
+   
+@app.route('/halaman', methods=['POST', 'GET'])
+def halaman():
     if 'loggedin' in session:
         if session['username'] == 'admin':
             return render_template('admin.html')
@@ -82,42 +83,15 @@ def buku():
                 'id_kategori': row[5],
                 'id_genre': row[6]
               })
-              ###print(data)
+              print(data)
             return render_template('user.html', data=data)
     else:
         return redirect(url_for('login'))
-        
-@app.route("/detail/<int:id_buku>", methods=['GET'])
-def detail(id_buku):
-    cursor = mysql.connection.cursor()
-    cursor.execute('SELECT * FROM buku WHERE id_buku = %s', (id_buku,))
-    buku_data = cursor.fetchone()
-    
-    if buku_data:
-        id_genre = buku_data[6]
-        id_kategori = buku_data[5]
-        
-        cursor.execute('SELECT genre FROM genre WHERE id_genre = %s', (id_genre,))
-        genre_data = cursor.fetchone()
-        
-        cursor.execute('SELECT kategori FROM kategori WHERE id_kategori = %s', (id_kategori,))
-        kategori_data = cursor.fetchone()
-        
-        buku = {
-            'judul': buku_data[1],
-            'foto': '/static/img/' + buku_data[2],
-            'penerbit': buku_data[3],
-            'bahasa': buku_data[4],
-            'kategori': kategori_data[0] if kategori_data else 'Unknown',
-            'genre': genre_data[0] if genre_data else 'Unknown'
-        }
-        return render_template('detail.html', buku=buku)
-    else:
-        return redirect(url_for('buku'))
-
+       
 @app.route("/syarat")
 def syarat():
     return render_template('syarat.html')
+
 
 @app.route('/logout')
 def logout():
@@ -126,5 +100,9 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('index'))
 
+
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
