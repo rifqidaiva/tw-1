@@ -30,6 +30,58 @@ def register():
             return render_template('form.html', pesan='Akun berhasil terdaftar')
     return render_template('form.html', pesan=None)
     
+@app.route('/change_password', methods=['POST', 'GET'])
+def change_password():
+    if 'loggedin' in session:
+        if request.method == 'POST':
+            current_password = request.form['current_password']
+            new_password = request.form['new_password']
+            confirm_password = request.form['confirm_password']
+            
+            cursor = mysql.connection.cursor()
+            cursor.execute('SELECT password FROM users WHERE id_user = %s', (session['id'],))
+            account = cursor.fetchone()
+            
+            if account and account[0] == current_password:
+                if new_password == confirm_password:
+                    cursor.execute('UPDATE users SET password = %s WHERE id_user = %s', (new_password, session['id']))
+                    mysql.connection.commit()
+                    return render_template('change_password.html', pesan='Password berhasil diubah')
+                else:
+                    return render_template('change_password.html', pesan='Password baru tidak cocok')
+            else:
+                return render_template('change_password.html', pesan='Password saat ini salah')
+        return render_template('change_password.html', pesan=None)
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/change_username', methods=['POST', 'GET'])
+def change_username():
+    if 'loggedin' in session:
+        if request.method == 'POST':
+            new_username = request.form['new_username']
+            cursor = mysql.connection.cursor()
+            
+            # Cek apakah username sudah ada
+            cursor.execute('SELECT * FROM users WHERE username = %s', (new_username,))
+            existing_user = cursor.fetchone()
+            
+            if existing_user:
+                cursor.close()
+                return render_template('change_username.html', pesan='Username sudah digunakan!')
+            
+            # Update username jika tidak ada duplikasi
+            cursor.execute('UPDATE users SET username = %s WHERE id_user = %s', (new_username, session['id']))
+            mysql.connection.commit()
+            cursor.close()
+            
+            session['username'] = new_username
+            return render_template('change_username.html', pesan='Username berhasil diubah!')
+        
+        return render_template('change_username.html', pesan=None)
+    
+    return redirect(url_for('login'))
+
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -104,12 +156,14 @@ def detail(id_buku):
         kategori_data = cursor.fetchone()
         
         buku = {
+            'id_buku': buku_data[0],
             'judul': buku_data[1],
             'foto': '/static/img/' + buku_data[2],
             'penerbit': buku_data[3],
             'bahasa': buku_data[4],
             'kategori': kategori_data[0] if kategori_data else 'Unknown',
-            'genre': genre_data[0] if genre_data else 'Unknown'
+            'genre': genre_data[0] if genre_data else 'Unknown',
+            'deskripsi': buku_data[7]
         }
         return render_template('detail.html', buku=buku)
     else:
@@ -118,6 +172,10 @@ def detail(id_buku):
 @app.route("/syarat")
 def syarat():
     return render_template('syarat.html')
+
+@app.route("/profile")
+def profile():
+    return render_template('profile.html')
 
 @app.route('/logout')
 def logout():
