@@ -82,7 +82,14 @@ def buku():
                 'id_kategori': row[5],
                 'id_genre': row[6]
               })
-              ###print(data)
+
+              # ambil data {rata-rata rating} dari tabel rating
+              cursor = mysql.connection.cursor()
+              cursor.execute('SELECT AVG(rating) FROM rating WHERE id_buku = %s', (row[0],))
+              avg_rating = cursor.fetchone()
+              cursor.close()
+
+              data[-1]['rating'] = round(avg_rating[0], 1) if avg_rating[0] else 0
             return render_template('user.html', data=data)
     else:
         return redirect(url_for('login'))
@@ -104,6 +111,7 @@ def detail(id_buku):
         kategori_data = cursor.fetchone()
         
         buku = {
+            'id_buku': buku_data[0],
             'judul': buku_data[1],
             'foto': '/static/img/' + buku_data[2],
             'penerbit': buku_data[3],
@@ -112,9 +120,53 @@ def detail(id_buku):
             'genre': genre_data[0] if genre_data else 'Unknown',
             'deskripsi': buku_data[7]
         }
+
+        # ambil data {rata-rata rating, rating user saat ini} dari tabel rating
+        cursor.execute('SELECT AVG(rating) FROM rating WHERE id_buku = %s', (id_buku,))
+        avg_rating = cursor.fetchone()
+
+        cursor.execute('SELECT rating FROM rating WHERE id_buku = %s AND id_user = %s', (id_buku, session['id']))
+        user_rating = cursor.fetchone()
+
+        cursor.close()
+
+        buku['rating'] = round(avg_rating[0], 1) if avg_rating[0] else 0
+        buku['user_rating'] = user_rating[0] if user_rating else 0
+
         return render_template('detail.html', buku=buku)
     else:
         return redirect(url_for('buku'))
+
+@app.route("/rating", methods=['POST', 'GET'])
+def rating():
+
+  if request.method == 'POST':
+    # dapatkan id buku, id user, dan rating dari form
+    id_buku = request.form['buku_id']
+    rating = request.form['rating']
+    id_user = session['id']
+
+    # cek apakah user sudah memberikan rating
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT * FROM rating WHERE id_buku = %s AND id_user = %s', (id_buku, id_user))
+    rating_data = cursor.fetchone()
+    cursor.close()
+
+    # jika sudah, update rating
+    if rating_data:
+      cursor = mysql.connection.cursor()
+      cursor.execute('UPDATE rating SET rating = %s WHERE id_buku = %s AND id_user = %s', (rating, id_buku, id_user))
+      mysql.connection.commit()
+      cursor.close()
+    # jika belum, insert rating
+    else:
+      cursor = mysql.connection.cursor()
+      cursor.execute('INSERT INTO rating (id_buku, id_user, rating) VALUES (%s, %s, %s)', (id_buku, id_user, rating))
+      mysql.connection.commit()
+      cursor.close()
+
+    return redirect(url_for('detail', id_buku=id_buku))
+  return redirect(url_for('detail/' + id_buku))
 
 @app.route("/syarat")
 def syarat():
