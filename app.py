@@ -42,14 +42,23 @@ def login():
         account = cursor.fetchone()
         cursor.close()
         
+        cursor = mysql.connection.cursor()
+        cursor.execute('SELECT * FROM buku')
+        results = cursor.fetchall()
+        
         if account:
             session['loggedin'] = True
             session['id'] = account[0]
             session['username'] = account[1]
-            return redirect(url_for('index'))
+            session['role'] = account[3]
+            if account[3] == 'admin':
+                return render_template('admin.html', role="admin", results = results)
+            else:
+                return render_template('user.html')
         else:
             return 'Invalid username/password!'
-    return render_template('login.html')
+    
+    return render_template('index.html')
     
 @app.route('/halaman', methods=['POST', 'GET'])
 def halaman():
