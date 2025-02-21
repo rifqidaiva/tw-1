@@ -101,9 +101,38 @@
                                 <label for="bahasa">Bahasa:</label>
                                 <input type="text" class="form-control" id="bahasa" name="bahasa"
                                     value="{{ row[4] }}"><br>
+                                    <label for="kategori">Kategori:</label>
+                                    <div>
+                                        <select required class="form-select" aria-label="Default select example" name="kategori"
+                                            id="kategori">
+                                            <option {% if row[5] == '1201' %} selected {% endif %} value="1201">
+                                                Ensiklopedia</option>
+                                            <option {% if row[5] == '1202' %} selected {% endif %} value="1202">
+                                                Komik</option>
+                                            <option {% if row[5] == '1203' %} selected {% endif %} value="1203">
+                                                Novel</option>
+                                            <option {% if row[5] == '1204' %} selected {% endif %} value="1203">
+                                                Lainnya</option>
+                                        </select>
+                                    </div><br>
+                                    <label for="genre">Genre:</label>
+                                    <div>
+                                        <select required class="form-select" aria-label="Default select example" name="genre"
+                                            id="genre">
+                                            <option {% if row[6] == '1101' %} selected {% endif %} value="1101">
+                                                Pengetahuan Umum</option>
+                                            <option {% if row[6] == '1102' %} selected {% endif %} value="1102">Sci-fi
+                                            </option>
+                                            <option {% if row[6] == '1103' %} selected {% endif %} value="1103">
+                                                Petualangan</option>
+                                            <option {% if row[6] == '1104' %} selected {% endif %} value="1104">
+                                                Sejarah</option>
+                                            <option {% if row[6] == '1105' %} selected {% endif %} value="1105">Horror
+                                            </option>
+                                        </select>
+                                    </div><br>
                                 <label for="deskripsi" class="form-label">Deskripsi:</label>
                                 <textarea class="form-control" id="deskripsi" name="deskripsi" rows="4">{{ row[7] }}</textarea><br>
-
                                 <center>
                                     <input type="submit" class="btn btn-dark" value="Konfirmasi">
                                     <a class="btn btn-dark " href="/admin" role="button">kembali</a>

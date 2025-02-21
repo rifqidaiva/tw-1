@@ -25,10 +25,6 @@
                 </div>
 
                 <div>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#pencarian"
-                        aria-controls="pencarian" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class=""><img src="/static/search.png" width="30" height="30"></span>
-                    </button>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -71,14 +67,6 @@
                             </ul>
                         </li>
                     </ul>
-                </div>
-                <div class="collapse navbar-collapse d-flex justify-content-end" id="pencarian">
-                    <br>
-                    <form class="d-flex text-light" role="search" action="admin.php" method="GET">
-                        <input class="form-control me-2" type="search" name="search" placeholder="Search"
-                            aria-label="Search" size="50">
-                        <button class="btn btn-outline-light" type="submit">Search</button>
-                    </form>
                 </div>
             </div>
         </nav>
@@ -124,10 +112,13 @@
                 <thead>
                     <tr>
                         <th scope="col">id_Buku</th>
+                        <th scope="col">Foto</th>
                         <th scope="col">Judul</th>
                         <th scope="col">Penerbit</th>
                         <th scope="col">Bahasa</th>
                         <th scope="col">Deskripsi</th>
+                        <th scope="col">Kategori</th>
+                        <th scope="col">Genre</th>
                         <th scope="col">Edit</th>
                         <th scope="col">Hapus</th>
                     </tr>
@@ -136,10 +127,13 @@
                         {% for row in results %}
                             <tr>
                                 <td>{{ row[0] }}</td>
+                                <td style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ row[2] }}</td>
                                 <td>{{ row[1] }}</td>
                                 <td>{{ row[3] }}</td>
                                 <td>{{ row[4] }}</td>
                                 <td style="max-width: 500px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ row[7] }}</td>
+                                <td>{{ row[6] }}</td>
+                                <td>{{ row[5] }}</td>
                                 <td><a href="/edit?id_buku={{ row[0] }}" class="btn btn-warning">EDIT</a></td>
                                 <td>
                                     <a href="/hapus.php?hapus={{ row.id_buku }}" class="btn btn-danger"
