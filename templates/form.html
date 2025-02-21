@@ -31,17 +31,24 @@
         </div>
         <br>
         <h2>Daftar Akun</h2>
-        <form action="daftar.php" method="POST">
+        <form action="/register" method="POST">
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
+            {% if pesan %}
+                {% if pesan == "Username telah digunakan" %}
+                    <p style="font-weight: bold; color: red;">{{ pesan }}</p>
+                {% elif pesan == "Akun berhasil terdaftar" %}
+                    <p style="font-weight: bold; color: green;">{{ pesan }}</p>
+                {% else %}
+                    <p>{{ pesan }}</p>
+                {% endif %}
+            {% endif %}  
             <input type="submit" value="Daftar">
         </form>
         <br>
-        <form action="/login" method="POST">
-            <input type="submit" value="Login">
-        </form>
+        <a href="/login" type="submit">Login</a>
     </div>
 
 

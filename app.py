@@ -17,7 +17,20 @@ def index():
 
 @app.route('/register', methods=['POST', 'GET'])
 def register():
-    return render_template('form.html')
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        cursor = mysql.connection.cursor()
+        kondisi = cursor.execute('SELECT * FROM users WHERE username=%s', (username,))
+        if  cursor.fetchone():
+            return render_template('form.html', pesan='Username telah digunakan')
+        else:
+            cursor.execute('INSERT INTO users (username, password, role) VALUES (%s, %s, %s)', (username, password, 'user'))
+            mysql.connection.commit()
+            return render_template('form.html', pesan='Akun berhasil terdaftar')
+    return render_template('form.html', pesan=None)
+    
+    
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -37,9 +50,8 @@ def login():
             return redirect(url_for('index'))
         else:
             return 'Invalid username/password!'
-    
     return render_template('login.html')
-
+    
 @app.route('/logout')
 def logout():
     session.pop('loggedin', None)
