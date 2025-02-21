@@ -29,7 +29,8 @@ def register():
             mysql.connection.commit()
             return render_template('form.html', pesan='Akun berhasil terdaftar')
     return render_template('form.html', pesan=None)
-    
+   
+
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -37,15 +38,15 @@ def login():
         username = request.form['username']
         password = request.form['password']
         cursor = mysql.connection.cursor()
-        
+       
         cursor.execute('SELECT * FROM users WHERE username=%s AND password=%s', (username, password))
         account = cursor.fetchone()
         cursor.close()
-        
+       
         cursor = mysql.connection.cursor()
         cursor.execute('SELECT * FROM buku')
         results = cursor.fetchall()
-
+       
         if account:
             session['loggedin'] = True
             session['id'] = account[0]
@@ -54,14 +55,14 @@ def login():
             if account[3] == 'admin':
                 return render_template('admin.html', role="admin", results = results)
             else:
-                return redirect(url_for('buku'))
+                return render_template('user.html')
         else:
             return 'Invalid username/password!'
-    return render_template('login.html')
-
-    
-@app.route('/buku', methods=['POST', 'GET'])
-def buku():
+   
+    return render_template('index.html')
+   
+@app.route('/halaman', methods=['POST', 'GET'])
+def halaman():
     if 'loggedin' in session:
         if session['username'] == 'admin':
             return render_template('admin.html')
@@ -86,19 +87,11 @@ def buku():
             return render_template('user.html', data=data)
     else:
         return redirect(url_for('login'))
-        
-@app.route("/detail", methods=['POST', 'GET'])
-def detail():
-    if request.method == 'POST':
-        id_buku = request.form['id_buku']
-        cursor = mysql.connection.cursor()
-        cursor.execute('SELECT * FROM buku WHERE id_buku = %s', (id_buku))
-        buku_data = cursor.fetchall()
-    return render_template('detail.html', data=buku_data)
-
+       
 @app.route("/syarat")
 def syarat():
     return render_template('syarat.html')
+
 
 @app.route('/logout')
 def logout():
@@ -107,5 +100,9 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('index'))
 
+
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
